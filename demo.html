@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>jPage演示</title>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <link rel="stylesheet" href="css/jPage.css">
+    <script type="text/javascript" src="js/jPage.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+    $(function(){
+        var condition = {};
+        //条件设置
+        app.query(condition);
+    });
+
+    var app = {
+        query : function(condition){
+            $.ajax({
+                type: "POST",
+                url: "服务器端接口",
+                data: JSON.stringify(condition),
+                dataType: "json",
+                headers: {"Content-Type": "application/json"},
+                success: function(data) {
+                    $(".listTable tbody").empty();
+                    if (data.flag == "success") {
+                        if($.isArray(data.data) && data.data.length>0){
+                            $.each(data.data,function(i,item){
+                                var tr = '<tr>';
+                                tr += '<td></td>';
+                                tr += '<td></td>';
+                                tr += '<td><a href="javascript:;"></a></td>';
+                                tr += '</tr>';
+                                $(".listTable tbody").append(tr);
+                            });
+                            //cooltable样式
+                            $(".listTable tbody tr").hover(function(){
+                                $(this).addClass("trHover");
+                            },function(){
+                                $(this).removeClass("trHover");
+                            });
+                            $(".pages").jPages({
+                                pageSize:condition.pageSize,
+                                totalCount:data.totalCount,
+                                pageCount:data.pageCount,
+                                current:condition.pageIndex,
+                                callback:function(p,s){
+                                    condition.pageIndex = p;
+                                    condition.pageSize = s;
+                                    app.query(condition);
+                                }
+                            });
+                        }else{
+                            console.log("暂无信息");
+                        }
+                    } else {
+                        console.log(data.msg);
+                    }
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+
+                }
+            });
+        }
+    };
+</script>
+
+<div>
+    <!-- 表头 -->
+    <table class="listTable table-layout">
+        <colgroup>
+            <col>
+            <col >
+            <col>
+        </colgroup>
+        <thead>
+        <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+            <td>
+                <a href="javascript:;"></a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!--分页 begin -->
+<div class="page-div">
+    <div class="pages">
+        <p class="fr">
+            项
+            <a href="#" class="firstpage no"><i></i></a>
+            <a href="#" class="prev no">&lt;</a><span class="current">1</span>
+            <a href="#">2</a>
+            <a href="#">3</a>
+            <a href="#">4</a>
+            <a href="#">5</a>
+            <a href="#" class="next">&gt;</a>
+            <a href="#" class="lastpage"><i></i></a>
+            跳转到
+            <input type="text" class="pageinput">页
+            <a href="#" class="gobutton">确定</a></p>
+        <div class="new-sel-box">
+            <div class="sel-value">100</div>
+            <select class="new-select">
+                <option>100</option>
+                <option>200</option>
+                <option>500</option>
+            </select>
+        </div>
+        <p class="txt">共**项，每页显示</p>
+    </div>
+</div>
+<!--分页 end -->
+
+</body>
+</html>
